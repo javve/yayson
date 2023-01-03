@@ -7,4 +7,4 @@ const Adapter = {
   },
 }
 
-module.exports = Adapter
+export default Adapter

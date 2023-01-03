@@ -1,5 +1,4 @@
-module.exports = function (utils) {
-  let Store
+export default function (utils) {
   class Record {
     constructor(options) {
       this.type = options.type
@@ -7,7 +6,7 @@ module.exports = function (utils) {
     }
   }
 
-  return (Store = class Store {
+  return class Store {
     constructor(options) {
       this.types = options.types || {}
       this.reset()
@@ -142,5 +141,5 @@ module.exports = function (utils) {
         return result
       })()
     }
-  })
+  }
 }

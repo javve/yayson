@@ -6,4 +6,4 @@ const SequelizeAdapter = {
   },
 }
 
-module.exports = SequelizeAdapter
+export default SequelizeAdapter

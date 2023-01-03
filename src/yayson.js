@@ -1,37 +1,12 @@
-const tryRequire = function (dep) {
-  try {
-    return require(dep)
-  } catch (error) {
-    return undefined
-  }
-}
+import utils from './yayson/utils'
+import AdapterInit from './yayson/adapter'
+import adapters from './yayson/adapters'
+import presenterFactory from './yayson/presenter'
+import StoreInit from './yayson/store'
 
-if (!this.window) {
-  this.window = {}
-}
+const lookupAdapter = (nameOrAdapter) => adapters[nameOrAdapter] || AdapterInit
 
-let { Q } = this.window
-let { _ } = this.window
-
-if (!Q) {
-  Q = tryRequire('q')
-}
-if (!_) {
-  _ = tryRequire('lodash/dist/lodash.underscore')
-}
-if (!_) {
-  _ = tryRequire('underscore')
-}
-
-const utils = require('./yayson/utils')(_, Q)
-
-const Adapter = require('./yayson/adapter')
-const adapters = require('./yayson/adapters')
-const presenterFactory = require('./yayson/presenter')
-
-const lookupAdapter = (nameOrAdapter) => adapters[nameOrAdapter] || Adapter
-
-const presenter = function (options) {
+export const presenter = function (options) {
   if (options == null) {
     options = {}
   }
@@ -40,12 +15,16 @@ const presenter = function (options) {
 }
 
 const yayson = {
-  Store: require('./yayson/store')(utils),
+  Store: StoreInit(utils),
   presenter,
-  Adapter,
+  Adapter: AdapterInit,
 
   // LEGACY: Remove in 2.0
   Presenter: presenter({ adapter: 'sequelize' }),
 }
 
-module.exports = yayson
+export default yayson
+
+export const Store = yayson.Store
+export const Adapter = yayson.Adapter
+export const Presenter = yayson.Presenter

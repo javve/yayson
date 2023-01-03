@@ -1,4 +1,4 @@
-module.exports = function (utils, adapter) {
+export default function (utils, adapter) {
   class Presenter {
     static initClass() {
       this.adapter = adapter
@@ -142,5 +142,5 @@ module.exports = function (utils, adapter) {
   }
   Presenter.initClass()
 
-  return (module.exports = Presenter)
+  return Presenter
 }

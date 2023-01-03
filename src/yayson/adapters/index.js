@@ -1,1 +1,3 @@
-module.exports = { sequelize: require('./sequelize') }
+import sequelize from './sequelize'
+
+export default { sequelize }

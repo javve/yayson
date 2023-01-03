@@ -1,6 +1,7 @@
 import { expect } from 'chai'
+import utils from '../../src/yayson/utils'
 
-const testUtils = function (utils) {
+describe('utils without optional dependencies', function () {
   it('should find element', function () {
     const num = utils.find([1, 2, 3], (n) => n === 2)
 
@@ -39,16 +40,4 @@ const testUtils = function (utils) {
 
     expect(values).to.deep.equal([1, 2])
   })
-}
-
-describe('utils without optional dependencies', function () {
-  const utils = require('../../src/yayson/utils')()
-  return testUtils(utils)
-})
-
-describe('utils with optional dependencies', function () {
-  const Q = require('q')
-  const _ = require('lodash')
-  const utils = require('../../src/yayson/utils')(_, Q)
-  return testUtils(utils)
 })
