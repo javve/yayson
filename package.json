@@ -43,5 +43,10 @@
   "optionalDependencies": {
     "lodash": "^2.4.1",
     "q": "^1.0.1"
+  },
+  "dependencies": {
+    "bulk-decaffeinate": "^3.3.1",
+    "decaffeinate": "^8.1.3",
+    "eslint": "^8.31.0"
   }
 }
