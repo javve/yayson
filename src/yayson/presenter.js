@@ -1,96 +1,136 @@
-module.exports = (utils, adapter) ->
-  class Presenter
-    @adapter: adapter
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS104: Avoid inline assignments
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
+ */
+module.exports = function(utils, adapter) {
+  class Presenter {
+    static initClass() {
+      this.adapter = adapter;
+  
+      this.prototype.name = 'object';
+      this.prototype.serialize = {};
+    }
 
-    name: 'object'
-    serialize: {}
+    constructor(scope) {
+      if (scope == null) { scope = {}; }
+      this.scope = scope;
+    }
 
-    constructor: (scope = {}) ->
-      @scope = scope
+    pluralName() {
+      return this.plural || (this.name + 's');
+    }
 
-    pluralName: ->
-      @plural || @name + 's'
+    links() {}
 
-    links: ->
+    serialize() {}
 
-    serialize: ->
+    attributes(instance) {
+      if (!instance) { return null; }
+      const attributes = utils.clone(adapter.get(instance));
+      const serialize = this.serialize();
+      for (var key in serialize) {
+        var id;
+        var data = attributes[key];
+        if (data == null) {
+          id = attributes[key + 'Id'];
+          if (id != null) { attributes[key] = id; }
+        } else if (data instanceof Array) {
+          attributes[key] = data.map(obj => obj.id);
+        } else {
+          attributes[key] = data.id;
+        }
+      }
+      return attributes;
+    }
 
-    attributes: (instance) ->
-      return null unless instance
-      attributes = utils.clone adapter.get instance
-      serialize = @serialize()
-      for key of serialize
-        data = attributes[key]
-        unless data?
-          id = attributes[key + 'Id']
-          attributes[key] = id if id?
-        else if data instanceof Array
-          attributes[key] = data.map (obj) -> obj.id
-        else
-          attributes[key] = data.id
-      attributes
+    relations(scope, instance) {
+      if (!scope.links) { scope.links = {}; }
+      const serialize = this.serialize();
+      return (() => {
+        const result = [];
+        for (var key in serialize) {
+          var factory = serialize[key] || (() => { throw new Error(`Presenter for ${key} in ${this.name} is not defined`); })();
+          var presenter = new factory(scope);
 
-    relations: (scope, instance) ->
-      scope.links ||= {}
-      serialize = @serialize()
-      for key of serialize
-        factory = serialize[key] || throw new Error("Presenter for #{key} in #{@name} is not defined")
-        presenter = new factory(scope)
+          var data = adapter.get(instance, key);
+          if (data != null) { presenter.toJSON(data, {defaultPlural: true}); }
 
-        data = adapter.get instance, key
-        presenter.toJSON data, defaultPlural: true if data?
+          var name = (scope[this.pluralName()] != null) ? this.pluralName() : this.name;
+          var keyName = (scope[presenter.pluralName()] != null) ? presenter.pluralName() : presenter.name;
+          result.push(scope.links[`${name}.${key}`] =
+            {type: keyName});
+        }
+        return result;
+      })();
+    }
 
-        name = if scope[@pluralName()]? then @pluralName() else @name
-        keyName = if scope[presenter.pluralName()]? then presenter.pluralName() else presenter.name
-        scope.links["#{name}.#{key}"] =
-          type: keyName
+    toJSON(instanceOrCollection, options) {
+      let name;
+      if (options == null) { options = {}; }
+      if (instanceOrCollection instanceof Array) {
+        const collection = instanceOrCollection;
+        if (!this.scope[name = this.pluralName()]) { this.scope[name] = []; }
+        collection.forEach(instance => {
+          return this.toJSON(instance);
+        });
+      } else {
+        let links;
+        const instance = instanceOrCollection;
+        let added = true;
+        const attrs = this.attributes(instance);
+        if (links = this.links()) { attrs.links = links; }
+        // If eg x.image already exists
+        if (this.scope[this.name] && !this.scope[this.pluralName()]) {
+          if (this.scope[this.name].id !== attrs.id) {
+            this.scope[this.pluralName()] = [this.scope[this.name]];
+            delete this.scope[this.name];
+            this.scope[this.pluralName()].push(attrs);
+          } else {
+            added = false;
+          }
 
-    toJSON: (instanceOrCollection, options = {}) ->
-      if instanceOrCollection instanceof Array
-        collection = instanceOrCollection
-        @scope[@pluralName()] ||= []
-        collection.forEach (instance) =>
-          @toJSON instance
-      else
-        instance = instanceOrCollection
-        added = true
-        attrs = @attributes instance
-        attrs.links = links if links = @links()
-        # If eg x.image already exists
-        if @scope[@name] && !@scope[@pluralName()]
-          if @scope[@name].id != attrs.id
-            @scope[@pluralName()] = [@scope[@name]]
-            delete @scope[@name]
-            @scope[@pluralName()].push attrs
-          else
-            added = false
+        // If eg x.images already exists
+        } else if (this.scope[this.pluralName()]) {
+          if (!utils.any(this.scope[this.pluralName()], i => i.id === attrs.id)) {
+            this.scope[this.pluralName()].push(attrs);
+          } else {
+            added = false;
+          }
+        } else if (options.defaultPlural) {
+          this.scope[this.pluralName()] = [attrs];
+        } else {
+          this.scope[this.name] = attrs;
+        }
 
-        # If eg x.images already exists
-        else if @scope[@pluralName()]
-          unless utils.any(@scope[@pluralName()], (i) -> i.id == attrs.id)
-            @scope[@pluralName()].push attrs
-          else
-            added = false
-        else if options.defaultPlural
-          @scope[@pluralName()] = [attrs]
-        else
-          @scope[@name] = attrs
+        if (added) { this.relations(this.scope, instance); }
+      }
+      return this.scope;
+    }
 
-        @relations @scope, instance if added
-      @scope
+    render(instanceOrCollection) {
+      if (utils.isPromise(instanceOrCollection)) {
+        return instanceOrCollection.then(data => this.toJSON(data));
+      } else {
+        return this.toJSON(instanceOrCollection);
+      }
+    }
 
-    render: (instanceOrCollection) ->
-      if utils.isPromise(instanceOrCollection)
-        instanceOrCollection.then (data) => @toJSON data
-      else
-        @toJSON instanceOrCollection
+    static toJSON() {
+      return (new (this)).toJSON(...arguments);
+    }
 
-    @toJSON: ->
-      (new this).toJSON arguments...
-
-    @render: ->
-      (new this).render arguments...
+    static render() {
+      return (new (this)).render(...arguments);
+    }
+  }
+  Presenter.initClass();
 
 
-  module.exports = Presenter
+  return module.exports = Presenter;
+};
 

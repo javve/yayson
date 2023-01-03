@@ -1,39 +1,54 @@
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS207: Consider shorter variations of null checks
+ * DS208: Avoid top-level this
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
+ */
 
-tryRequire = (dep) ->
-  try
-    require dep
-  catch
-    undefined
+const tryRequire = function(dep) {
+  try {
+    return require(dep);
+  } catch (error) {
+    return undefined;
+  }
+};
 
-@window ||= {}
+if (!this.window) { this.window = {}; }
 
-Q = @window.Q
-_ = @window._
+let {
+  Q
+} = this.window;
+let {
+  _
+} = this.window;
 
-Q ||= tryRequire 'q'
-_ ||= tryRequire 'lodash/dist/lodash.underscore'
-_ ||= tryRequire 'underscore'
+if (!Q) { Q = tryRequire('q'); }
+if (!_) { _ = tryRequire('lodash/dist/lodash.underscore'); }
+if (!_) { _ = tryRequire('underscore'); }
 
-utils = require('./yayson/utils')(_, Q)
+const utils = require('./yayson/utils')(_, Q);
 
-Adapter = require('./yayson/adapter')
-adapters = require('./yayson/adapters')
-presenterFactory = require('./yayson/presenter')
+const Adapter = require('./yayson/adapter');
+const adapters = require('./yayson/adapters');
+const presenterFactory = require('./yayson/presenter');
 
-lookupAdapter = (nameOrAdapter) ->
-  adapters[nameOrAdapter] || Adapter
+const lookupAdapter = nameOrAdapter => adapters[nameOrAdapter] || Adapter;
 
-presenter = (options = {}) ->
-  adapter = lookupAdapter options.adapter
-  presenterFactory(utils, adapter)
+const presenter = function(options) {
+  if (options == null) { options = {}; }
+  const adapter = lookupAdapter(options.adapter);
+  return presenterFactory(utils, adapter);
+};
 
-yayson =
-  Store: require('./yayson/store')(utils)
-  presenter: presenter
-  Adapter: Adapter
+const yayson = {
+  Store: require('./yayson/store')(utils),
+  presenter,
+  Adapter,
 
-  # LEGACY: Remove in 2.0
-  Presenter: presenter(adapter: 'sequelize')
+  // LEGACY: Remove in 2.0
+  Presenter: presenter({adapter: 'sequelize'})
+};
 
 
-module.exports = yayson
+module.exports = yayson;
