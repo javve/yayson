@@ -1,9 +1,9 @@
-mocha.setup('bdd')
+mocha.setup('bdd');
 
-require('./yayson/store')
-require('./yayson/presenter')
-require('./yayson/utils')
+require('./yayson/store');
+require('./yayson/presenter');
+require('./yayson/utils');
 
 
-mocha.checkLeaks()
-mocha.run()
+mocha.checkLeaks();
+mocha.run();

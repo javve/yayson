@@ -1,75 +1,114 @@
-expect = require('chai').expect
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
+ */
+const {
+  expect
+} = require('chai');
 
-Presenter = require('../../src/yayson.coffee').Presenter
+const {
+  Presenter
+} = require('../../src/yayson.coffee');
 
-describe 'Presenter', ->
-  it 'handles null', ->
-    json = Presenter.toJSON(null)
-    expect(json).to.deep.equal {object: null, links: {}}
+describe('Presenter', function() {
+  it('handles null', function() {
+    const json = Presenter.toJSON(null);
+    return expect(json).to.deep.equal({object: null, links: {}});
+});
 
-  it 'create json structure of an object', ->
-    obj = {get: -> {foo: 'bar'}}
-    json = Presenter.toJSON(obj)
-    expect(json).to.deep.equal {object: {foo: 'bar'}, links: {}}
+  it('create json structure of an object', function() {
+    const obj = {get() { return {foo: 'bar'}; }};
+    const json = Presenter.toJSON(obj);
+    return expect(json).to.deep.equal({object: {foo: 'bar'}, links: {}});
+});
 
-  it 'create json structure of an object', ->
-    obj = [{get: -> {id: 1, foo: 'bar'}}, {get: -> {id: 2, foo: 'bar'}}]
-    json = Presenter.toJSON(obj)
-    expect(json).to.deep.equal {objects: [{id: 1, foo: 'bar'}, {id: 2, foo: 'bar'}], links: {}}
+  it('create json structure of an object', function() {
+    const obj = [{get() { return {id: 1, foo: 'bar'}; }}, {get() { return {id: 2, foo: 'bar'}; }}];
+    const json = Presenter.toJSON(obj);
+    return expect(json).to.deep.equal({objects: [{id: 1, foo: 'bar'}, {id: 2, foo: 'bar'}], links: {}});
+});
 
-  it 'should not dup object', ->
-    obj = [{get: -> {id: 1}}, {get: -> {id: 1}}]
-    json = Presenter.toJSON(obj)
-    expect(json).to.deep.equal {objects: [{id: 1}], links: {}}
+  it('should not dup object', function() {
+    const obj = [{get() { return {id: 1}; }}, {get() { return {id: 1}; }}];
+    const json = Presenter.toJSON(obj);
+    return expect(json).to.deep.equal({objects: [{id: 1}], links: {}});
+});
 
-  it 'should serialize relations', ->
-    class TirePresenter extends Presenter
-      name: 'tire'
-      serialize: ->
-        car: CarPresenter
-
-    class CarPresenter extends Presenter
-      name: 'car'
-      serialize: ->
-        tire: TirePresenter
-
-    obj =
-      id: 1
-      get: (attr) ->
-        car = this
-        tire =
-          id: 2
-          get: (attr) ->
-            unless attr
-              id: @id
-              car: car
-            else if attr == 'car'
-              car
-
-        unless attr
-          id: @id
-          tire: tire
-        else if attr == 'tire'
-          tire
-
-    json = CarPresenter.toJSON(obj)
-    expect(json).to.deep.equal
-      car: {id: 1, tire: 2}
-      links:
-        'tires.car': type: 'car'
-        'car.tire': type: 'tires'
-      tires: [id: 2, car: 1]
-
-  it 'should serialize in pure JS', ->
-
-      `
-      var EventPresenter = function () { Presenter.call(this); }
-      EventPresenter.prototype = new Presenter()
-      EventPresenter.prototype.attributes = function() {
-        return {hej: 'test'}
+  it('should serialize relations', function() {
+    class TirePresenter extends Presenter {
+      static initClass() {
+        this.prototype.name = 'tire';
       }
-      var presenter = new EventPresenter()
-      var json = presenter.toJSON({id: 1})
-      `
-      expect(json.object.hej).to.eq 'test'
+      serialize() {
+        return {car: CarPresenter};
+      }
+    }
+    TirePresenter.initClass();
+
+    class CarPresenter extends Presenter {
+      static initClass() {
+        this.prototype.name = 'car';
+      }
+      serialize() {
+        return {tire: TirePresenter};
+      }
+    }
+    CarPresenter.initClass();
+
+    const obj = {
+      id: 1,
+      get(attr) {
+        const car = this;
+        const tire = {
+          id: 2,
+          get(attr) {
+            if (!attr) {
+              return {
+                id: this.id,
+                car
+              };
+            } else if (attr === 'car') {
+              return car;
+            }
+          }
+        };
+
+        if (!attr) {
+          return {
+            id: this.id,
+            tire
+          };
+        } else if (attr === 'tire') {
+          return tire;
+        }
+      }
+    };
+
+    const json = CarPresenter.toJSON(obj);
+    return expect(json).to.deep.equal({
+      car: {id: 1, tire: 2},
+      links: {
+        'tires.car': { type: 'car'
+      },
+        'car.tire': { type: 'tires'
+      }
+      },
+      tires: [{id: 2, car: 1}]});
+});
+
+  return it('should serialize in pure JS', function() {
+
+      
+      const EventPresenter = function () { Presenter.call(this); };
+      EventPresenter.prototype = new Presenter();
+      EventPresenter.prototype.attributes = () => ({
+        hej: 'test'
+      });
+      const presenter = new EventPresenter();
+      const json = presenter.toJSON({id: 1});
+      return expect(json.object.hej).to.eq('test');
+  });
+});
 
