@@ -1,17 +1,10 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
-const { expect } = require('chai')
-
-const { Presenter } = require('../../src/yayson.coffee')
+import { expect } from 'chai'
+import { Presenter } from '../../src/yayson'
 
 describe('Presenter', function () {
   it('handles null', function () {
     const json = Presenter.toJSON(null)
-    return expect(json).to.deep.equal({ object: null, links: {} })
+    expect(json).to.deep.equal({ object: null, links: {} })
   })
 
   it('create json structure of an object', function () {
@@ -21,7 +14,7 @@ describe('Presenter', function () {
       },
     }
     const json = Presenter.toJSON(obj)
-    return expect(json).to.deep.equal({ object: { foo: 'bar' }, links: {} })
+    expect(json).to.deep.equal({ object: { foo: 'bar' }, links: {} })
   })
 
   it('create json structure of an object', function () {
@@ -38,7 +31,7 @@ describe('Presenter', function () {
       },
     ]
     const json = Presenter.toJSON(obj)
-    return expect(json).to.deep.equal({
+    expect(json).to.deep.equal({
       objects: [
         { id: 1, foo: 'bar' },
         { id: 2, foo: 'bar' },
@@ -61,7 +54,7 @@ describe('Presenter', function () {
       },
     ]
     const json = Presenter.toJSON(obj)
-    return expect(json).to.deep.equal({ objects: [{ id: 1 }], links: {} })
+    expect(json).to.deep.equal({ objects: [{ id: 1 }], links: {} })
   })
 
   it('should serialize relations', function () {
@@ -115,7 +108,7 @@ describe('Presenter', function () {
     }
 
     const json = CarPresenter.toJSON(obj)
-    return expect(json).to.deep.equal({
+    expect(json).to.deep.equal({
       car: { id: 1, tire: 2 },
       links: {
         'tires.car': { type: 'car' },
@@ -125,7 +118,7 @@ describe('Presenter', function () {
     })
   })
 
-  return it('should serialize in pure JS', function () {
+  it('should serialize in pure JS', function () {
     const EventPresenter = function () {
       Presenter.call(this)
     }
@@ -135,6 +128,6 @@ describe('Presenter', function () {
     })
     const presenter = new EventPresenter()
     const json = presenter.toJSON({ id: 1 })
-    return expect(json.object.hej).to.eq('test')
+    expect(json.object.hej).to.eq('test')
   })
 })

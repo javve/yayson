@@ -4,7 +4,7 @@ module.exports = function (utils, adapter) {
       this.adapter = adapter
 
       this.prototype.name = 'object'
-      this.prototype.serialize = {}
+      this.prototype.serialize = () => {}
     }
 
     constructor(scope) {

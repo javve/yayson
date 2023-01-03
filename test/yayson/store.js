@@ -1,11 +1,5 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
-const { expect } = require('chai')
-
-const { Store } = require('../../src/yayson.coffee')
+import { expect } from 'chai'
+import { Store } from '../../src/yayson'
 
 describe('Store', function () {
   beforeEach(function () {
@@ -30,7 +24,7 @@ describe('Store', function () {
   it('should store an event', function () {
     this.store.sync({ event: { id: 1, name: 'Demo' } })
     const event = this.store.find('event', 1)
-    return expect(event.name).to.equal('Demo')
+    expect(event.name).to.equal('Demo')
   })
 
   it('should populate relations', function () {
@@ -49,7 +43,7 @@ describe('Store', function () {
     expect(this.store.relations.event.organisers).to.equal('organiser')
     expect(this.store.relations.event.speakers).to.equal('speaker')
     expect(this.store.relations.organiser.image).to.equal('image')
-    return expect(this.store.relations.speaker.image).to.equal('image')
+    expect(this.store.relations.speaker.image).to.equal('image')
   })
 
   it('should handle circular relations', function () {
@@ -62,7 +56,7 @@ describe('Store', function () {
       images: [{ id: 2, event: 1 }],
     })
     const event = this.store.find('event', 1)
-    return expect(event.name).to.equal('Demo')
+    expect(event.name).to.equal('Demo')
   })
 
   it('should return a event with all associated objects', function () {
@@ -107,7 +101,7 @@ describe('Store', function () {
     expect(event.ticketBatches.length).to.equal(2)
     expect(event.organisers.length).to.equal(3)
     expect(event.speakers.length).to.equal(1)
-    return expect(event.speakers[0].image.id).to.equal(5)
+    expect(event.speakers[0].image.id).to.equal(5)
   })
 
   it('should remove an event', function () {
@@ -120,7 +114,7 @@ describe('Store', function () {
 
     this.store.remove('event', 1)
     const event = this.store.find('event', 1)
-    return expect(event).to.eq(null)
+    expect(event).to.eq(null)
   })
 
   it('should remove all events', function () {
@@ -133,7 +127,7 @@ describe('Store', function () {
 
     this.store.remove('event')
     const events = this.store.findAll('event')
-    return expect(events).to.deep.eq([])
+    expect(events).to.deep.eq([])
   })
 
   return it('should reset', function () {
@@ -152,6 +146,6 @@ describe('Store', function () {
     const events = this.store.findAll('event')
     const images = this.store.findAll('image')
     expect(events).to.deep.eq([])
-    return expect(images).to.deep.eq([])
+    expect(images).to.deep.eq([])
   })
 })

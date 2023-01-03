@@ -1,7 +1,7 @@
-/** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
   maxWorkers: 1,
-  // preset: 'ts-jest',
+  preset: 'jest-esbuild',
   testEnvironment: 'node',
+  testMatch: ['**/test/yayson/**/*.js'],
   moduleDirectories: ['node_modules', '<rootDir>'],
 }

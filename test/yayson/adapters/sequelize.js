@@ -1,12 +1,6 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
+import { expect } from 'chai'
 
-const { expect } = require('chai')
-
-const SequelizeAdapter = require('../../../src/yayson/adapters/sequelize.coffee')
+import SequelizeAdapter from '../../../src/yayson/adapters/sequelize'
 
 describe('SequelizeAdapter', function () {
   beforeEach(function () {})
@@ -19,7 +13,7 @@ describe('SequelizeAdapter', function () {
     }
 
     const attributes = SequelizeAdapter.get(model)
-    return expect(attributes.name).to.eq('Abraham')
+    expect(attributes.name).to.eq('Abraham')
   })
 
   return it('should get object property', function () {
@@ -34,6 +28,6 @@ describe('SequelizeAdapter', function () {
     const name = SequelizeAdapter.get(model, 'name')
 
     expect(name).to.eq('Abraham')
-    return expect(args[0]).to.eq('name')
+    expect(args[0]).to.eq('name')
   })
 })
