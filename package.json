@@ -2,7 +2,7 @@
   "name": "yayson",
   "version": "1.0.5",
   "description": "A library for serializing and reading JSON API standardized data in JavaScript.",
-  "main": "lib/yayson.js",
+  "main": "src/yayson.js",
   "scripts": {
     "test": "jest",
     "build": "esbuild src/yayson.js --outfile=dist/yayson.js --bundle"

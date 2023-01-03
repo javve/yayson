@@ -59,24 +59,18 @@ describe('Presenter', function () {
 
   it('should serialize relations', function () {
     class TirePresenter extends Presenter {
-      static initClass() {
-        this.prototype.name = 'tire'
-      }
       serialize() {
         return { car: CarPresenter }
       }
     }
-    TirePresenter.initClass()
+    TirePresenter.prototype.name = 'tire'
 
     class CarPresenter extends Presenter {
-      static initClass() {
-        this.prototype.name = 'car'
-      }
       serialize() {
         return { tire: TirePresenter }
       }
     }
-    CarPresenter.initClass()
+    CarPresenter.prototype.name = 'car'
 
     const obj = {
       id: 1,
@@ -119,13 +113,11 @@ describe('Presenter', function () {
   })
 
   it('should serialize in pure JS', function () {
-    const EventPresenter = function () {
-      Presenter.call(this)
+    class EventPresenter extends Presenter {
+      attributes() {
+        return { hej: 'test' }
+      }
     }
-    EventPresenter.prototype = new Presenter()
-    EventPresenter.prototype.attributes = () => ({
-      hej: 'test',
-    })
     const presenter = new EventPresenter()
     const json = presenter.toJSON({ id: 1 })
     expect(json.object.hej).to.eq('test')

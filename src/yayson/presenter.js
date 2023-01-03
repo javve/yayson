@@ -1,16 +1,11 @@
 export default function (utils, adapter) {
   class Presenter {
-    static initClass() {
-      this.adapter = adapter
-
-      this.prototype.name = 'object'
-      this.prototype.serialize = () => {}
-    }
-
     constructor(scope) {
       if (scope == null) {
         scope = {}
       }
+      this.name = this.name || 'object'
+      this.adapter = adapter
       this.scope = scope
     }
 
@@ -140,7 +135,6 @@ export default function (utils, adapter) {
       return new this().render(...arguments)
     }
   }
-  Presenter.initClass()
 
   return Presenter
 }
