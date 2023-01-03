@@ -3,8 +3,10 @@
   "version": "1.0.5",
   "description": "A library for serializing and reading JSON API standardized data in JavaScript.",
   "main": "src/yayson.js",
+  "type": "module",
   "scripts": {
     "test": "jest",
+    "test-watch": "jest --watch",
     "lint": "eslint src",
     "build": "esbuild src/yayson.js --outfile=dist/yayson.js --bundle"
   },
